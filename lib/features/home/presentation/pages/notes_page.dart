@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:studymate/features/home/presentation/pages/create_note_page.dart';
 
 class NotesPage extends StatefulWidget {
   const NotesPage({super.key});
@@ -10,8 +11,8 @@ class NotesPage extends StatefulWidget {
 }
 
 class _NotesPageState extends State<NotesPage> {
-  String selectedCategory = 'Personal';
-  List<String> categories = ['All', 'work', 'Personal', 'Fitness'];
+  String selectedCategory = 'All';
+  List<String> categories = ['All', 'Work', 'Personal', 'Fitness'];
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +82,15 @@ class _NotesPageState extends State<NotesPage> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        // Navigate to add note page
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CreateNotePage(),
+                          ),
+                        );
+                      },
                       icon: Icon(Icons.add, size: 24, color: Colors.black),
                     ),
                   ),
@@ -101,18 +110,36 @@ class _NotesPageState extends State<NotesPage> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
-                      mainAxisSize: MainAxisSize.min,
+                      mainAxisSize: MainAxisSize.max,
                       children: [
-                        Text(
-                          selectedCategory,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
+                        DropdownButton<String>(
+                          value: selectedCategory,
+                          icon: Icon(
+                            Icons.keyboard_arrow_down,
                             color: Colors.black,
                           ),
+                          underline: SizedBox(),
+                          items: categories.map((String category) {
+                            return DropdownMenuItem<String>(
+                              value: category,
+                              child: Center(
+                                child: Text(
+                                  category,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              selectedCategory = newValue!;
+                            });
+                          },
                         ),
-                        SizedBox(width: 8),
-                        Icon(Icons.keyboard_arrow_down, color: Colors.black),
                       ],
                     ),
                   ),
@@ -151,7 +178,7 @@ class _NotesPageState extends State<NotesPage> {
                           });
                         },
                         backgroundColor: Colors.transparent,
-                        selectedColor: Color(0xFF90EE90), // Light green
+                        selectedColor: Color.fromARGB(255, 144, 202, 238),
                         side: BorderSide(
                           color: isSelected
                               ? Colors.transparent
