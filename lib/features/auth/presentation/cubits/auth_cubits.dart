@@ -3,11 +3,14 @@ Cubits are for state management -> to show the data on the screnn
  */
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:studymate/features/auth/domain/repos/user_repo.dart';
 import 'package:studymate/features/auth/presentation/cubits/auth_states.dart';
 import '../../domain/entities/app_user.dart';
 import '../../domain/repos/auth_repo.dart';
 
-class AuthCubit extends Cubit<AuthState>{
+class AuthCubit extends Cubit<AuthState> {
   final AuthRepo authRepo;
   AppUser? _currentUser;
 
@@ -18,7 +21,6 @@ class AuthCubit extends Cubit<AuthState>{
 
   //check if the user is authenticated
   void checkAuth() async {
-    //loading ..
     emit(AuthLoading());
 
     // get current user
@@ -27,7 +29,7 @@ class AuthCubit extends Cubit<AuthState>{
     await Future.delayed(const Duration(seconds: 2));
     final user = await authRepo.getCurrentUser();
 
-    if(user != null){
+    if (user != null) {
       _currentUser = user;
       emit(Authenticated(user));
     } else {
@@ -41,17 +43,15 @@ class AuthCubit extends Cubit<AuthState>{
       emit(AuthLoading());
       final user = await authRepo.loginWithEmailPassword(email, pw);
 
-      if(user != null){
+      if (user != null) {
         _currentUser = user;
         emit(Authenticated(user));
       } else {
         emit(UnAuthenticated());
       }
-    }
-    catch (e) {
+    } catch (e) {
       emit(AuthError(e.toString()));
       emit(UnAuthenticated());
-
     }
   }
 
@@ -61,14 +61,14 @@ class AuthCubit extends Cubit<AuthState>{
       emit(AuthLoading());
       final user = await authRepo.registerWithEmailPassword(name, email, pw);
 
-      if(user != null){
+      if (user != null) {
+        createUser(user);
         _currentUser = user;
         emit(Authenticated(user));
       } else {
         emit(UnAuthenticated());
       }
-    }
-    catch (e) {
+    } catch (e) {
       emit(AuthError(e.toString()));
       emit(UnAuthenticated());
     }
@@ -88,11 +88,9 @@ class AuthCubit extends Cubit<AuthState>{
       emit(AuthLoading());
       final message = await authRepo.sendPasswordResetEmail(email);
       return message;
-    }
-    catch (e) {
+    } catch (e) {
       emit(AuthError(e.toString()));
       return e.toString();
-
     }
   }
 
@@ -103,11 +101,16 @@ class AuthCubit extends Cubit<AuthState>{
       await authRepo.deleteAccount();
       _currentUser = null;
       emit(UnAuthenticated());
-    }
-    catch (e) {
+    } catch (e) {
       emit(AuthError(e.toString()));
       emit(UnAuthenticated());
     }
   }
 
+  final userRepo = Get.put(UserRepo());
+
+  Future<void> createUser(AppUser user) async {
+    await userRepo.createUser(user);
+    // register(user.name, user.email, user.Pass);
+  }
 }

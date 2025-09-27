@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 
-class TodoPage extends StatefulWidget {
-  const TodoPage({super.key});
+class BrowsePage extends StatefulWidget {
+  const BrowsePage({super.key});
 
   @override
-  State<TodoPage> createState() => _TodoPageState();
+  State<BrowsePage> createState() => _BrowsePageState();
 }
 
-class _TodoPageState extends State<TodoPage> {
+class _BrowsePageState extends State<BrowsePage> {
   @override
   Widget build(BuildContext context) {
     return const Placeholder(
       // body: Center(
       //   child: Text(
-      //     'To-Do Page',
+      //     'Browse Page',
       //     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
       //   ),
       // ),

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:line_icons/line_icons.dart';
 import 'package:studymate/features/auth/presentation/cubits/auth_cubits.dart';
+// import 'package:flutter_bloc/flutter_bloc.dart';
+// import 'package:line_icons/line_icons.dart';
+// import 'package:studymate/features/auth/presentation/cubits/auth_cubits.dart';
 import '../bars/bottom_navigation_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -17,7 +19,6 @@ class _MainScreenPage extends State<MainScreenPage> {
     User? user = FirebaseAuth.instance.currentUser;
     String name = user?.displayName ?? "Guest User";
     String email = user?.email ?? "guest@example.com";
-
     return Scaffold(
       backgroundColor: Colors.white,
       drawer: Drawer(
@@ -93,6 +94,15 @@ class _MainScreenPage extends State<MainScreenPage> {
         ),
         title: Text('StudyMate'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            onPressed: () {
+              final authCubit = context.read<AuthCubit>();
+              authCubit.logout();
+            },
+            icon: const Icon(Icons.logout),
+          )
+        ],
       ),
       bottomNavigationBar: Mybottomnavbar(),
     );

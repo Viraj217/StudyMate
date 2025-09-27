@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:studymate/features/home/presentation/pages/browse_page.dart';
 import 'package:studymate/features/home/presentation/pages/chatbot_page.dart';
 import '../pages/notes_page.dart';
 import '../pages/todo_page.dart';
-import '../pages/home_page.dart';
 
 class Mybottomnavbar extends StatefulWidget {
   const Mybottomnavbar({super.key});
@@ -17,17 +17,17 @@ class _MybottomnavbarState extends State<Mybottomnavbar> {
   final PageController _pageController = PageController();
 
   final List<Widget> _pages = [
-    HomePage(),
     TodoPage(),
     NotesPage(),
     ChatbotPage(),
+    BrowsePage(),
   ];
 
   final List<Map<String, dynamic>> _tabData = [
-    {'icon': LineIcons.home, 'label': 'Home'},
     {'icon': LineIcons.medicalNotes, 'label': 'To-Do'},
     {'icon': LineIcons.stickyNote, 'label': 'Notes'},
     {'icon': LineIcons.robot, 'label': 'Chat'},
+    {'icon': LineIcons.bars, 'label': 'Browse'},
   ];
 
   void _onTabSelected(int index) {
@@ -48,16 +48,20 @@ class _MybottomnavbarState extends State<Mybottomnavbar> {
         Expanded(
           child: IndexedStack(index: _selectedIndex, children: _pages),
         ),
-        _buildBottomNavBar(),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.grey.shade300,
+          ),
+          child: _buildBottomNavBar()),
       ],
     );
   }
 
   Widget _buildBottomNavBar() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
       child: Container(
-        height: 85,
+        height: 75,
         decoration: BoxDecoration(
           color: Color.fromRGBO(32, 101, 210, 1),
           borderRadius: BorderRadius.circular(45),
@@ -83,7 +87,7 @@ class _MybottomnavbarState extends State<Mybottomnavbar> {
         curve: Curves.easeOutExpo,
         transform: Matrix4.identity()..scale(isSelected ? 1.05 : 1.0),
         child: Container(
-          width: isSelected ? 110 : 65,
+          width: isSelected ? 110 : 50,
           height: 65,
           decoration: BoxDecoration(
             color: Color.fromRGBO(32, 101, 210, 1),
@@ -103,7 +107,7 @@ class _MybottomnavbarState extends State<Mybottomnavbar> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(10),
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: Color.fromRGBO(32, 101, 210, 1),
                         shape: BoxShape.circle,
@@ -114,7 +118,7 @@ class _MybottomnavbarState extends State<Mybottomnavbar> {
                           _tabData[index]['icon'],
                           key: ValueKey(index),
                           color: Colors.white,
-                          size: 24,
+                          size: 25,
                         ),
                       ),
                     ),
@@ -124,7 +128,7 @@ class _MybottomnavbarState extends State<Mybottomnavbar> {
                         duration: Duration(milliseconds: 300),
                         opacity: isSelected ? 1.0 : 0.0,
                         child: Container(
-                          margin: EdgeInsets.only(right: 4),
+                          margin: EdgeInsets.only(right: 2),
                           child: Text(
                             _tabData[index]['label'],
                             style: TextStyle(
