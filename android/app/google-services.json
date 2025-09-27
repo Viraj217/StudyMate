@@ -1,0 +1,90 @@
+{
+  "project_info": {
+    "project_number": "971678292113",
+    "project_id": "studymate-9c128",
+    "storage_bucket": "studymate-9c128.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:971678292113:android:4ea9532496149437d68730",
+        "android_client_info": {
+          "package_name": "com.example.studymate"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "971678292113-kqk9m3jenka5586o38k87p2slvnaqik4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDBMsJXFjU0h0kmzdRwBW0pYzx_JnHq_s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "971678292113-kqk9m3jenka5586o38k87p2slvnaqik4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "971678292113-v6pn124p5umcrukv0jc1883a2rufm4j6.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.viraj.studymate"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:971678292113:android:eea4588268fb5b08d68730",
+        "android_client_info": {
+          "package_name": "com.viraj.studymate"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "971678292113-79abo9isov3rt3adbnuj6ei31difui95.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.viraj.studymate",
+            "certificate_hash": "c5af1c6e90b4d2d1756bcdca755c975fb247d493"
+          }
+        },
+        {
+          "client_id": "971678292113-kqk9m3jenka5586o38k87p2slvnaqik4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDBMsJXFjU0h0kmzdRwBW0pYzx_JnHq_s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "971678292113-kqk9m3jenka5586o38k87p2slvnaqik4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "971678292113-v6pn124p5umcrukv0jc1883a2rufm4j6.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.viraj.studymate"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
