@@ -10,6 +10,14 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return const Placeholder(
+      // backgroundColor: Colors.white,
+    //   body: Center(
+    //     child: Text(
+    //       'Welcome to StudyMate!',
+    //       style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+    //     ),
+    //   ),
+    );
   }
 }

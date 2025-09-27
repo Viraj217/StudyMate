@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:studymate/features/auth/presentation/cubits/auth_cubits.dart';
-import '../bottom_nav_bar/bottom_navigation_bar.dart';
+import '../bars/bottom_navigation_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class MainScreenPage extends StatefulWidget {
@@ -14,55 +14,50 @@ class MainScreenPage extends StatefulWidget {
 class _MainScreenPage extends State<MainScreenPage> {
   @override
   Widget build(BuildContext context) {
-
     User? user = FirebaseAuth.instance.currentUser;
-    String name = user?.uid ?? "Guest User";
+    String name = user?.displayName ?? "Guest User";
     String email = user?.email ?? "guest@example.com";
 
     return Scaffold(
+      backgroundColor: Colors.white,
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            SizedBox(
-              height: 105,
-              child: UserAccountsDrawerHeader(
-                margin: EdgeInsets.zero,
-                accountName: Text(name),
-                accountEmail: Text(email),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 24),
+              child: SafeArea(
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 30,
+                      child: Icon(Icons.person, size: 40, color: Colors.white),
+                    ),
+                    SizedBox(width: 16),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          name,
+                          style: TextStyle(
+                            color: const Color.fromARGB(255, 0, 0, 0),
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          email,
+                          style: TextStyle(
+                            color: const Color.fromARGB(179, 0, 0, 0),
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-            ListTile(
-              leading: Icon(Icons.home),
-              title: Text("Home"),
-              onTap: () {
-                // update bottom nav
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.check_box),
-              title: Text("To-Do"),
-              onTap: () {
-                // _selectedIndex = 1;
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.note),
-              title: Text("Notes"),
-              onTap: () {
-                // _selectedIndex = 2;
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.chat),
-              title: Text("ChatBot"),
-              onTap: () {
-                // _selectedIndex = 3;
-                Navigator.pop(context);
-              },
             ),
             Divider(),
             ListTile(
@@ -85,10 +80,11 @@ class _MainScreenPage extends State<MainScreenPage> {
       ),
 
       appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         leading: Builder(
           builder: (context) {
             return IconButton(
-              icon: Icon(Icons.account_circle_outlined, size: 30),
+              icon: Icon(Icons.account_circle_outlined, size: 50),
               onPressed: () {
                 Scaffold.of(context).openDrawer();
               },
@@ -96,18 +92,7 @@ class _MainScreenPage extends State<MainScreenPage> {
           },
         ),
         title: Text('StudyMate'),
-        actions: [
-          IconButton(
-            onPressed: () {
-              final authCubit = context.read<AuthCubit>();
-              authCubit.logout();
-            },
-            icon: const Icon(Icons.logout),
-          ),
-        ],
-      ),
-      body: Column(children: [
-        ],
+        centerTitle: true,
       ),
       bottomNavigationBar: Mybottomnavbar(),
     );
