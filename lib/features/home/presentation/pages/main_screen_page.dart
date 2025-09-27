@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:studymate/features/auth/presentation/cubits/auth_cubits.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:line_icons/line_icons.dart';
-// import 'package:studymate/features/auth/presentation/cubits/auth_cubits.dart';
 import '../bars/bottom_navigation_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 

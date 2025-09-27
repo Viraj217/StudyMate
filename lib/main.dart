@@ -9,6 +9,7 @@ import 'features/auth/data/firebase_auth_repo.dart';
 import 'features/auth/presentation/cubits/auth_cubits.dart';
 import 'features/home/presentation/pages/main_screen_page.dart';
 import 'features/home/presentation/pages/splash_page.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 
 void main() async{

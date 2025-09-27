@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 ThemeData lightMode = ThemeData(
   colorScheme: ColorScheme.light(
@@ -7,4 +8,5 @@ ThemeData lightMode = ThemeData(
     tertiary: Colors.white,
     inversePrimary: Colors.grey.shade900,),
   scaffoldBackgroundColor: Colors.grey.shade300,
+  textTheme: GoogleFonts.ubuntuTextTheme(),
 );
