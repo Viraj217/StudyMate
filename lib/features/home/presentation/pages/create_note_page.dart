@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+// import 'package:studymate/features/auth/domain/repos/note_repo.dart';
 
 class CreateNotePage extends StatefulWidget {
   const CreateNotePage({super.key});
@@ -9,8 +10,12 @@ class CreateNotePage extends StatefulWidget {
 }
 
 class _CreateNotePageState extends State<CreateNotePage> {
+
   final TextEditingController titleController = TextEditingController();
   final TextEditingController contentController = TextEditingController();
+  // bool _isSaving = false;
+  
+  
   
   @override
   void dispose() {
@@ -24,7 +29,6 @@ class _CreateNotePageState extends State<CreateNotePage> {
       Map<String, dynamic> newNote = {
         'title': titleController.text.isEmpty ? 'Untitled' : titleController.text,
         'content': contentController.text,
-        'date': DateTime.now(),
       };
       
       Navigator.pop(context, newNote);
@@ -159,7 +163,7 @@ class _CreateNotePageState extends State<CreateNotePage> {
                     child: ElevatedButton(
                       onPressed: _saveNote,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF90EE90), // Light green
+                        backgroundColor: Color.fromARGB(255, 144, 202, 238), 
                         padding: EdgeInsets.symmetric(vertical: 15),
                         elevation: 0,
                         shape: RoundedRectangleBorder(

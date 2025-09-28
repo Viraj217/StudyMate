@@ -4,7 +4,7 @@ AUTH REPOSITORIES - Outlines the possible auth operations for this app
 
  */
 
-import '../entities/app_user.dart';
+import '../models/app_user.dart';
 
 abstract class AuthRepo {
   Future<AppUser?> loginWithEmailPassword(String email, String Password);

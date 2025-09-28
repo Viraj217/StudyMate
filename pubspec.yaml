@@ -19,6 +19,7 @@ dependencies:
   get: ^4.7.2
   google_fonts: ^6.3.2
   collection: ^1.19.1
+  intl: ^0.20.2
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43

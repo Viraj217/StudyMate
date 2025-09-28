@@ -1,8 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:studymate/features/auth/domain/entities/app_user.dart';
+import 'package:studymate/features/auth/domain/models/app_user.dart';
 
 class UserRepo extends GetxController {
   static UserRepo get instance => Get.find();

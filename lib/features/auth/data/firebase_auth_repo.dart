@@ -2,7 +2,7 @@
 FIREBASE IS OUR BACKEND FOR AUTHENTICATION AND STORAGE
 */
 
-import 'package:studymate/features/auth/domain/entities/app_user.dart';
+import 'package:studymate/features/auth/domain/models/app_user.dart';
 import 'package:studymate/features/auth/domain/repos/auth_repo.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 

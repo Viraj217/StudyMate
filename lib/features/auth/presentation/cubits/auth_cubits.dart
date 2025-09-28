@@ -5,9 +5,11 @@ Cubits are for state management -> to show the data on the screnn
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:studymate/features/auth/domain/models/note.dart';
+import 'package:studymate/features/auth/domain/repos/note_repo.dart';
 import 'package:studymate/features/auth/domain/repos/user_repo.dart';
 import 'package:studymate/features/auth/presentation/cubits/auth_states.dart';
-import '../../domain/entities/app_user.dart';
+import '../../domain/models/app_user.dart';
 import '../../domain/repos/auth_repo.dart';
 
 class AuthCubit extends Cubit<AuthState> {

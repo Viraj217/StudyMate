@@ -50,7 +50,7 @@ class _MybottomnavbarState extends State<Mybottomnavbar> {
         ),
         Container(
           decoration: BoxDecoration(
-            color: Colors.grey.shade300,
+            color: Colors.white,
           ),
           child: _buildBottomNavBar()),
       ],

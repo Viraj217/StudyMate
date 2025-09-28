@@ -2,7 +2,7 @@
 Auth States
 */
 
-import '../../domain/entities/app_user.dart';
+import '../../domain/models/app_user.dart';
 
 abstract class AuthState {}
 
