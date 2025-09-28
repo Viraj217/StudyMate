@@ -13,10 +13,7 @@ class _CreateNotePageState extends State<CreateNotePage> {
 
   final TextEditingController titleController = TextEditingController();
   final TextEditingController contentController = TextEditingController();
-  // bool _isSaving = false;
-  
-  
-  
+    
   @override
   void dispose() {
     titleController.dispose();
