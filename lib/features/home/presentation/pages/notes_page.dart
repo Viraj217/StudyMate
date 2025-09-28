@@ -1,7 +1,16 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import 'package:studymate/features/auth/domain/models/note.dart';
 import 'package:studymate/features/home/presentation/pages/create_note_page.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:flutter/material.dart';
+// import 'package:google_fonts/google_fonts.dart';
+// import 'package:studymate/features/auth/domain/models/todo.dart';
+import 'package:studymate/features/auth/domain/services/database_service.dart';
+// import 'package:intl/intl.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
 
 class NotesPage extends StatefulWidget {
   const NotesPage({super.key});
@@ -11,6 +20,7 @@ class NotesPage extends StatefulWidget {
 }
 
 class _NotesPageState extends State<NotesPage> {
+  final databaseService _databaseService = databaseService();
   String selectedCategory = 'All';
   List<String> categories = ['All', 'Work', 'Personal', 'Fitness'];
 
@@ -200,17 +210,62 @@ class _NotesPageState extends State<NotesPage> {
               Expanded(
                 child: Container(
                   // Add your notes list or grid view here
-                  child: Center(
-                    child: Text(
-                      'Your notes will appear here',
-                      style: TextStyle(color: Colors.grey[500], fontSize: 16),
-                    ),
-                  ),
+                  child: _notesListView(),
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _notesListView() {
+    return Container(
+      child: StreamBuilder(
+        stream: _databaseService.getNote(),
+        builder: (context, snapshot) {
+          List notes = snapshot.data?.docs ?? [];
+          if (notes.isEmpty) {
+            return const Center(child: Text("Your notes will appear here"));
+          }
+          return ListView.builder(
+            itemCount: notes.length,
+            itemBuilder: (context, index) {
+              Note note = notes[index].data();
+              String noteID = notes[index].id;
+              return Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 10,
+                ),
+                child: Container(
+                  child: ListTile(
+                    title: Text(note.title),
+
+                    subtitle: Text(
+                      DateFormat(
+                        "dd-MM-yyyy h:mm a",
+                      ).format(note.createdOn.toDate()),
+                    ),
+                    trailing: IconButton(
+                      onPressed: () {
+                        Note updatedTodo = note.copywith(
+                          starred: !note.starred,
+                        );
+                        _databaseService.updateNote(noteID, updatedTodo);
+                      },
+                      icon: Icon(
+                        note.starred ? Icons.star : Icons.star_border,
+                        color: note.starred ? Colors.amber : Colors.grey,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }

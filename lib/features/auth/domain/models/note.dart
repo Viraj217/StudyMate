@@ -43,27 +43,4 @@ class Note {
       'content': content,
     };
   }
-
-  // Map<String, dynamic> toMap() {
-  //   return {'title': title, 'content': content};
-  // }
-
-  // Map<String, dynamic> toJson() => {
-  //   'id': id,
-  //   'title': title,
-  //   'content': content,
-  // };
-
-  // factory MyNote.fromFirestore(String id, Map<String, dynamic> data) {
-  //   return MyNote(
-  //     id: id,
-  //     title: data['title'] ?? '',
-  //     content: data['content'] ?? '',
-  //   );
-  // }
-
-  // factory MyNote.fromJson(Map<String, dynamic> jsonUser) => MyNote(
-  //   title: jsonUser['title'] as String,
-  //   content: jsonUser['content'] as String,
-  // );
 }

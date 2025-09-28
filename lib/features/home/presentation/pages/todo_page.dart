@@ -124,7 +124,7 @@ class _TodoPageState extends State<TodoPage> {
                   child: Container(
                     child: ListTile(
                       title: Text(todo.task),
-                    
+
                       subtitle: Text(
                         DateFormat(
                           "dd-MM-yyyy h:mm a",
@@ -135,7 +135,9 @@ class _TodoPageState extends State<TodoPage> {
                         checkColor: Colors.white,
                         value: todo.isDone,
                         onChanged: (value) {
-                          Todo updatedTodo = todo.copywith(isDone: !todo.isDone);
+                          Todo updatedTodo = todo.copywith(
+                            isDone: !todo.isDone,
+                          );
                           _databaseService.updateTodo(todoID, updatedTodo);
                         },
                       ),

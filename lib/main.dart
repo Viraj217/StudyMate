@@ -11,9 +11,10 @@ import 'features/auth/presentation/cubits/auth_cubits.dart';
 import 'features/home/presentation/pages/main_screen_page.dart';
 import 'features/home/presentation/pages/splash_page.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 
-void main() async{
+void main() async {
   //firebase setup
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -22,6 +23,14 @@ void main() async{
     persistenceEnabled: true,
     cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
   );
+
+  // Load environment variables
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    // You may want to log an error or fail startup if the file is critical
+    print('Error loading .env file: $e');
+  }
 
   //run application
   runApp(MyApp());

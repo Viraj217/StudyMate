@@ -1,6 +1,9 @@
+// ignore_for_file: constant_identifier_names, camel_case_types
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:studymate/features/auth/domain/models/note.dart';
 import 'package:studymate/features/auth/domain/models/todo.dart';
+import 'package:studymate/features/auth/presentation/cubits/note_states.dart';
 
 const String TODO_COLLECTION_REF = "todos";
 
@@ -47,7 +50,11 @@ class databaseService {
     return _notesRef.snapshots();
   }
 
-  void addNote(Todo todo) async {
-    _notesRef.add(todo);
+  void addNote(Note note) async {
+    await _notesRef.add(note.toJson());
+  }
+
+  void updateNote(String noteID, Note note) {
+    _notesRef.doc(noteID).update(note.toJson());
   }
 }

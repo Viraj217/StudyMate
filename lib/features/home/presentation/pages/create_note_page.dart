@@ -1,44 +1,31 @@
+// ignore_for_file: unused_field
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:studymate/features/auth/domain/models/note.dart';
+import 'package:studymate/features/auth/domain/services/database_service.dart';
 // import 'package:studymate/features/auth/domain/repos/note_repo.dart';
 
 class CreateNotePage extends StatefulWidget {
   const CreateNotePage({super.key});
-  
+
   @override
   State<CreateNotePage> createState() => _CreateNotePageState();
 }
 
 class _CreateNotePageState extends State<CreateNotePage> {
+  final databaseService _databaseService = databaseService();
+  TextEditingController titleController = TextEditingController();
+  TextEditingController contentController = TextEditingController();
+  bool isStarred = false;
+  DateTime? createdOn;
 
-  final TextEditingController titleController = TextEditingController();
-  final TextEditingController contentController = TextEditingController();
-    
-  @override
-  void dispose() {
-    titleController.dispose();
-    contentController.dispose();
-    super.dispose();
-  }
-  
-  void _saveNote() {
-    if (titleController.text.isNotEmpty || contentController.text.isNotEmpty) {
-      Map<String, dynamic> newNote = {
-        'title': titleController.text.isEmpty ? 'Untitled' : titleController.text,
-        'content': contentController.text,
-      };
-      
-      Navigator.pop(context, newNote);
-    } else {
-      Navigator.pop(context);
-    }
-  }
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: false, 
+      resizeToAvoidBottomInset: false,
       body: Padding(
         padding: const EdgeInsets.only(top: 10.0),
         child: Column(
@@ -47,21 +34,40 @@ class _CreateNotePageState extends State<CreateNotePage> {
               child: SingleChildScrollView(
                 padding: EdgeInsets.all(20),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'New Note',
-                      style: GoogleFonts.ubuntu(
-                        fontSize: 36,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: -0.5,
-                      ),
+                    Row(
+                      children: [
+                        Text(
+                          'New Note',
+                          style: GoogleFonts.ubuntu(
+                            fontSize: 36,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            isStarred ? Icons.star : Icons.star_border,
+                            color: isStarred ? Colors.amber : Colors.grey,
+                            size: 32,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              isStarred = !isStarred; // toggle star
+                            });
+                          },
+                        ),
+                      ],
                     ),
-                    
+
                     SizedBox(height: 10),
-                    
+
                     // Note Container
                     Container(
-                      height: MediaQuery.of(context).size.height * 0.70, // 70% of screen height
+                      height:
+                          MediaQuery.of(context).size.height *
+                          0.70, // 70% of screen height
                       decoration: BoxDecoration(
                         border: Border.all(width: 2, color: Colors.black),
                         borderRadius: BorderRadius.circular(12),
@@ -89,13 +95,10 @@ class _CreateNotePageState extends State<CreateNotePage> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          
+
                           // Divider
-                          Divider(
-                            color: Colors.grey,
-                            height: 1,
-                          ),
-                          
+                          Divider(color: Colors.grey, height: 1),
+
                           // Content TextField
                           Expanded(
                             child: TextField(
@@ -108,28 +111,37 @@ class _CreateNotePageState extends State<CreateNotePage> {
                                 border: InputBorder.none,
                                 contentPadding: EdgeInsets.all(16),
                               ),
-                              style: TextStyle(
-                                fontSize: 18,
-                              ),
+                              style: TextStyle(fontSize: 18),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    
-                    // Extra space for scrolling
-                    SizedBox(height: 100),
+                    if (createdOn != null)
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          "Created: ${createdOn!.day}/${createdOn!.month}/${createdOn!.year} ${createdOn!.hour}:${createdOn!.minute.toString().padLeft(2, '0')}",
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
             ),
-            
-            // Fixed buttons container at bottom
+
+            // buttons container at bottom
             Container(
-              padding: EdgeInsets.only(bottom: 50, left: 25, right: 25, top: 10),
-              decoration: BoxDecoration(
-                color: Colors.white,
+              padding: EdgeInsets.only(
+                bottom: 50,
+                left: 25,
+                right: 25,
+                top: 10,
               ),
+              decoration: BoxDecoration(color: Colors.white),
               child: Row(
                 children: [
                   // Cancel Button
@@ -145,22 +157,97 @@ class _CreateNotePageState extends State<CreateNotePage> {
                       ),
                       child: Text(
                         'Cancel',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.black,
-                        ),
+                        style: TextStyle(fontSize: 16, color: Colors.black),
                       ),
                     ),
                   ),
-                  
+
                   SizedBox(width: 15),
-                  
+
+                  // Save Button
+                  // Expanded(
+                  //   child: ElevatedButton(
+                  //     onPressed: () async {
+                  //       if (titleController.text.isEmpty ||
+                  //           contentController.text.isEmpty) {
+                  //         ScaffoldMessenger.of(context).showSnackBar(
+                  //           const SnackBar(content: Text("Fill all fields")),
+                  //         );
+                  //         return;
+                  //       }
+
+                  //       DateTime now = DateTime.now(); // ← set creation time
+
+                  //       Note note = Note(
+                  //         title: titleController.text.trim(),
+                  //         starred: isStarred,
+                  //         createdOn: Timestamp.fromDate(now),
+                  //         content: contentController.text.trim(),
+                  //       );
+
+                  //       // _databaseService.addNote(note);
+
+                  //       _databaseService.addNote(note);
+                  //       Navigator.pop(context);
+                  //     },
+                  //     style: ElevatedButton.styleFrom(
+                  //       backgroundColor: Color.fromARGB(255, 144, 202, 238),
+                  //       padding: EdgeInsets.symmetric(vertical: 15),
+                  //       elevation: 0,
+                  //       shape: RoundedRectangleBorder(
+                  //         borderRadius: BorderRadius.circular(8),
+                  //       ),
+                  //     ),
+                  //     child: Text(
+                  //       'Save',
+                  //       style: TextStyle(
+                  //         fontSize: 16,
+                  //         color: Colors.black,
+                  //         fontWeight: FontWeight.w500,
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
+
                   // Save Button
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: _saveNote,
+                      onPressed: () async {
+                        if (titleController.text.isEmpty ||
+                            contentController.text.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Fill all fields")),
+                          );
+                          return;
+                        }
+
+                        DateTime now = DateTime.now(); // set creation time
+
+                        Note note = Note(
+                          title: titleController.text.trim(),
+                          starred: isStarred,
+                          createdOn: Timestamp.fromDate(now),
+                          content: contentController.text.trim(),
+                        );
+
+                        try {
+                          // Await the addNote Future
+                          _databaseService.addNote(note);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Note saved successfully!"),
+                            ),
+                          );
+                          Navigator.pop(context); // Go back to notes page
+                        } catch (e) {
+                          // Handle errors
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Failed to save note: $e")),
+                          );
+                        }
+                      },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromARGB(255, 144, 202, 238), 
+                        backgroundColor: Color.fromARGB(255, 144, 202, 238),
                         padding: EdgeInsets.symmetric(vertical: 15),
                         elevation: 0,
                         shape: RoundedRectangleBorder(

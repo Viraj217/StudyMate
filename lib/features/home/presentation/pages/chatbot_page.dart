@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gemini/flutter_gemini.dart';
 
 class ChatbotPage extends StatefulWidget {
   const ChatbotPage({super.key});
