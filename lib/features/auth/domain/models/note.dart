@@ -1,46 +1,61 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Note {
-  String title;
-  bool starred;
-  Timestamp createdOn;
-  String content;
+  final String? id;
+  final String title;
+  final String content;
+  final Timestamp createdOn;
+  final List<String> hashtags;
+  final bool starred;
 
   Note({
+    this.id,
     required this.title,
-    required this.starred,
-    required this.createdOn,
     required this.content,
+    required this.createdOn,
+    this.hashtags = const [],
+    required this.starred,
   });
 
-  Note.fromJson(Map<String, Object?> json)
-    : this(
-        title: json['title']! as String,
-        starred: json['starred']! as bool,
-        createdOn: json['createdOn']! as Timestamp,
-        content: json['content']! as String,
-      );
-
-  Note copywith({
-    String? title,
-    bool? starred,
-    Timestamp? createdOn,
-    String? content,
-  }) {
+  // fromJson - matches your Todo pattern
+  factory Note.fromJson(Map<String, dynamic> json, String id) {
     return Note(
-      title: title ?? this.title,
-      starred: starred ?? this.starred,
-      createdOn: createdOn ?? this.createdOn,
-      content: content ?? this.content,
+      id: id,
+      title: json['title'] ?? '',
+      content: json['content'] ?? '',
+      createdOn: json['createdOn'] ?? Timestamp.now(),
+      hashtags: List<String>.from(json['hashtags'] ?? []),
+      starred: json['starred'] ?? false,
     );
   }
 
-  Map<String, Object?> toJson() {
+  // toJson
+  Map<String, dynamic> toJson() {
     return {
       'title': title,
-      'starred': starred,
-      'createdOn': createdOn,
       'content': content,
+      'createdOn': createdOn,
+      'hashtags': hashtags,
+      'starred': starred,
     };
+  }
+
+  // copywith
+  Note copywith({
+    String? id,
+    String? title,
+    String? content,
+    Timestamp? createdOn,
+    List<String>? hashtags,
+    bool? starred,
+  }) {
+    return Note(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      content: content ?? this.content,
+      createdOn: createdOn ?? this.createdOn,
+      hashtags: hashtags ?? this.hashtags,
+      starred: starred ?? this.starred,
+    );
   }
 }

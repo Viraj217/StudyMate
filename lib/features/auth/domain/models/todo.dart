@@ -1,48 +1,114 @@
+// import 'package:cloud_firestore/cloud_firestore.dart';
+
+// class Todo {
+//   final String id;
+//   final String title;
+//   final bool isDone;
+//   final DateTime createdAt;
+
+//   Todo({
+//     required this.id,
+//     required this.title,
+//     required this.isDone,
+//     required this.createdAt,
+//   });
+
+//   /// Firestore snapshot → Todo
+//   factory Todo.fromDoc(DocumentSnapshot doc) {
+//     final data = doc.data() as Map<String, dynamic>;
+//     return Todo(
+//       id: doc.id,
+//       title: data['title'] ?? '',
+//       isDone: data['isDone'] ?? false,
+//       createdAt: (data['createdAt'] as Timestamp).toDate(),
+//     );
+//   }
+
+//   /// JSON → Todo
+//   factory Todo.fromJson(Map<String, dynamic> json, String id) {
+//     return Todo(
+//       id: id,
+//       title: json['title'] ?? '',
+//       isDone: json['isDone'] ?? false,
+//       createdAt: (json['createdAt'] as Timestamp).toDate(),
+//     );
+//   }
+
+//   Todo → JSON
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'title': title,
+//       'isDone': isDone,
+//       'createdAt': createdAt,
+//     };
+//   }
+
+//   Todo copyWith({
+//     String? title,
+//     bool? isDone,
+//   }) {
+//     return Todo(
+//       id: id,
+//       title: title ?? this.title,
+//       isDone: isDone ?? this.isDone,
+//       createdAt: createdAt,
+//     );
+//   }
+// }
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Todo {
-  String task;
-  bool isDone;
-  Timestamp createdOn;
-  Timestamp deadline;
+  final String id;
+  final String title;
+  final bool isDone;
+  final DateTime createdAt;
 
   Todo({
-    required this.task,
+    required this.id,
+    required this.title,
     required this.isDone,
-    required this.createdOn,
-    required this.deadline,
+    required this.createdAt,
   });
 
-  Todo.fromJson(Map<String, Object?> json)
-    : this(
-        task: json['task']! as String,
-        isDone: json['isDone']! as bool,
-        createdOn: json['createdOn']! as Timestamp,
-        deadline: json['deadline']! as Timestamp,
-      );
+  factory Todo.fromDoc(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
 
-  Map<String, Object?> toJson() {
-    return {
-      'task': task,
-      'isDone': isDone,
-      'createdOn': createdOn,
-      'deadline': deadline,
-    };
-  }
-
-  Todo copywith({
-    String? task,
-    bool? isDone,
-    Timestamp? createdOn,
-    Timestamp? deadline,
-  }) {
     return Todo(
-      task: task ?? this.task,
-      isDone: isDone ?? this.isDone,
-      createdOn: createdOn ?? this.createdOn,
-      deadline: deadline ?? this.deadline,
+      id: doc.id,
+      title: data['title'] ?? "",
+      isDone: data['isDone'] ?? false,
+      createdAt: (data['createdAt'] as Timestamp).toDate(),
     );
   }
 
-  
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'isDone': isDone,
+      'createdAt': createdAt,
+    };
+  }
+
+  Todo copyWith({
+    String? title,
+    bool? isDone,
+  }) {
+    return Todo(
+      id: id,
+      title: title ?? this.title,
+      isDone: isDone ?? this.isDone,
+      createdAt: createdAt,
+    );
+  }
+
+  // JSON → Todo
+  factory Todo.fromJson(Map<String, dynamic> json, String id) {
+    return Todo(
+      id: id,
+      title: json['title'] ?? '',
+      isDone: json['isDone'] ?? false,
+      createdAt: (json['createdAt'] as Timestamp).toDate(),
+    );
+  }
 }

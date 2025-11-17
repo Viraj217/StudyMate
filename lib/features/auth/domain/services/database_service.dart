@@ -1,4 +1,4 @@
-// ignore_for_file: constant_identifier_names, camel_case_types
+// ignore_for_file: constant_identifier_names, camel_case_types, unused_import
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:studymate/features/auth/domain/models/note.dart';
@@ -18,14 +18,14 @@ class databaseService {
     _todosRef = _firestore
         .collection(TODO_COLLECTION_REF)
         .withConverter<Todo>(
-          fromFirestore: (snapshots, _) => Todo.fromJson(snapshots.data()!),
+          fromFirestore: (snap, _) => Todo.fromJson(snap.data()!, snap.id),
           toFirestore: (todo, _) => todo.toJson(),
         );
 
     _notesRef = _firestore
         .collection(NOTE_COLLECTION_REF)
         .withConverter<Note>(
-          fromFirestore: (snapshots, _) => Note.fromJson(snapshots.data()!),
+          fromFirestore: (snapshots, _) => Note.fromJson(snapshots.data()!, snapshots.id),
           toFirestore: (note, _) => note.toJson(),
         );
   }
