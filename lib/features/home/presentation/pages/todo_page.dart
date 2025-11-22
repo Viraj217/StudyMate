@@ -1,5 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -291,19 +291,44 @@ class _TodoPageState extends State<TodoPage> {
                       letterSpacing: -0.5,
                     ),
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey[300]!),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: IconButton(
-                      onPressed: () => _showAddTodoSheet(context),
-                      icon: const Icon(
-                        Icons.add,
-                        size: 24,
-                        color: Colors.black,
+                  Row(
+                    children: [
+                      if (kIsWeb)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey[300]!),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: IconButton(
+                              onPressed: () {
+                                context.read<TodoCubit>().loadTodos();
+                              },
+                              icon: const Icon(
+                                Icons.refresh,
+                                size: 24,
+                                color: Colors.black,
+                              ),
+                              tooltip: 'Refresh Tasks',
+                            ),
+                          ),
+                        ),
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey[300]!),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: IconButton(
+                          onPressed: () => _showAddTodoSheet(context),
+                          icon: const Icon(
+                            Icons.add,
+                            size: 24,
+                            color: Colors.black,
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ],
               ),

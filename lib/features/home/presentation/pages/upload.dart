@@ -1,10 +1,10 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart'; // For kIsWeb
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -24,8 +24,8 @@ class UploadPage extends StatefulWidget {
 class _UploadPageState extends State<UploadPage> {
   final databaseService _dbService = databaseService();
   final TextEditingController searchController = TextEditingController();
-  bool _isSearching = false;
   String _searchQuery = '';
+  bool _isSearching = false;
 
   @override
   void initState() {
@@ -405,36 +405,18 @@ class _UploadPageState extends State<UploadPage> {
     );
   }
 
-  // Future<void> _openFile(String url) async {
-  //   final Uri uri = Uri.parse(url);
-  //   try {
-  //     if (await canLaunchUrl(uri)) {
-  //       await launchUrl(uri, mode: LaunchMode.externalApplication);
-  //     } else {
-  //       ScaffoldMessenger.of(
-  //         context,
-  //       ).showSnackBar(const SnackBar(content: Text('Could not open file')));
-  //     }
-  //   } catch (e) {
-  //     ScaffoldMessenger.of(
-  //       context,
-  //     ).showSnackBar(const SnackBar(content: Text('Error opening file')));
-  //   }
-  // }
   Future<void> _openFile(String url) async {
     final Uri uri = Uri.parse(url);
     try {
-      if (!await launchUrl(
-        uri,
-        mode: LaunchMode.externalApplication,
-      )) {
-
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
         if (!await launchUrl(uri, mode: LaunchMode.platformDefault)) {
-           throw 'Could not launch $url';
+          throw 'Could not launch $url';
         }
       }
     } catch (e) {
-      debugPrint('Error launching URL: $e'); // Print error to console for debugging
+      debugPrint(
+        'Error launching URL: $e',
+      ); // Print error to console for debugging
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -484,19 +466,17 @@ class _UploadDialogState extends State<_UploadDialog> {
     setState(() => _isPicking = true);
 
     try {
+      // withData: true ensures we get bytes on all platforms (needed since we removed dart:io)
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         allowMultiple: true,
         type: FileType.custom,
         allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx', 'txt'],
+        withData: true,
       );
 
       if (result != null) {
         setState(() {
-          _files.addAll(
-            result.paths
-                .where((path) => path != null)
-                .map((path) => FileItem(file: File(path!))),
-          );
+          _files.addAll(result.files.map((file) => FileItem(file: file)));
         });
       }
     } catch (e) {
@@ -512,13 +492,19 @@ class _UploadDialogState extends State<_UploadDialog> {
     setState(() => item.isUploading = true);
 
     try {
-      String extension = item.file.path.split('.').last.toLowerCase();
+      // Use name and extension from PlatformFile
+      String extension = item.file.extension?.toLowerCase() ?? 'unknown';
       String resourceType = ['jpg', 'jpeg', 'png', 'gif'].contains(extension)
           ? 'image'
           : 'auto';
 
+      if (item.file.bytes == null) {
+        throw Exception("File content is empty");
+      }
+
       final result = await uploadToCloudinary(
-        item.file,
+        item.file.bytes!,
+        item.file.name,
         resourceType: resourceType,
       );
 
@@ -528,7 +514,7 @@ class _UploadDialogState extends State<_UploadDialog> {
         if (user != null) {
           final material = StudyMaterial(
             uid: user.uid,
-            fileName: item.file.path.split('/').last,
+            fileName: item.file.name,
             fileUrl: result['secure_url'],
             fileType: extension,
             hash: null,
@@ -608,7 +594,7 @@ class _UploadDialogState extends State<_UploadDialog> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'No files selected',
+                            'Drag and drop or click to upload',
                             style: GoogleFonts.ubuntu(
                               color: Colors.grey[600],
                               fontSize: 16,
@@ -617,11 +603,8 @@ class _UploadDialogState extends State<_UploadDialog> {
                           const SizedBox(height: 24),
                           ElevatedButton.icon(
                             onPressed: _pickFiles,
-                            icon: const Icon(Icons.add, color: Colors.black),
-                            label: Text(
-                              'Select Files',
-                              style: GoogleFonts.ubuntu(color: Colors.black),
-                            ),
+                            icon: const Icon(Icons.add),
+                            label: const Text('Select Files'),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color.fromARGB(
                                 255,
@@ -629,57 +612,114 @@ class _UploadDialogState extends State<_UploadDialog> {
                                 202,
                                 238,
                               ),
+                              foregroundColor: Colors.black,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 24,
                                 vertical: 12,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
                               ),
                             ),
                           ),
                         ],
                       ),
                     )
-                  : ListView.builder(
+                  : ListView.separated(
                       itemCount: _files.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 12),
                       itemBuilder: (context, index) {
                         final item = _files[index];
-                        return _buildFileCard(item);
+                        return Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey[200]!),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                _getFileIcon(item.file.extension ?? ''),
+                                color: const Color.fromARGB(255, 144, 202, 238),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      item.file.name,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    Text(
+                                      '${(item.file.size / 1024).toStringAsFixed(1)} KB',
+                                      style: TextStyle(
+                                        color: Colors.grey[500],
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (item.isUploading)
+                                const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              else if (item.isUploaded)
+                                const Icon(
+                                  Icons.check_circle,
+                                  color: Colors.green,
+                                )
+                              else
+                                Row(
+                                  children: [
+                                    IconButton(
+                                      onPressed: () => _uploadFile(item),
+                                      icon: const Icon(
+                                        Icons.upload_rounded,
+                                        color: Colors.blue,
+                                      ),
+                                      tooltip: 'Upload',
+                                    ),
+                                    IconButton(
+                                      onPressed: () => _removeFile(item),
+                                      icon: const Icon(
+                                        Icons.delete_outline,
+                                        color: Colors.red,
+                                      ),
+                                      tooltip: 'Remove',
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
+                        );
                       },
                     ),
             ),
             if (_files.isNotEmpty) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               Row(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: _pickFiles,
-                      icon: const Icon(Icons.add),
-                      label: const Text('Add More'),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                    ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Done'),
                   ),
                   const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(
-                          255,
-                          144,
-                          202,
-                          238,
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                      child: Text(
-                        'Done',
-                        style: GoogleFonts.ubuntu(color: Colors.black),
-                      ),
+                  ElevatedButton.icon(
+                    onPressed: _pickFiles,
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add More'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey[100],
+                      foregroundColor: Colors.black,
                     ),
                   ),
                 ],
@@ -691,88 +731,27 @@ class _UploadDialogState extends State<_UploadDialog> {
     );
   }
 
-  Widget _buildFileCard(FileItem item) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    item.file.path.split('/').last,
-                    style: GoogleFonts.ubuntu(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close, size: 18),
-                  onPressed: () => _removeFile(item),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                if (!item.isUploaded && !item.isUploading)
-                  ElevatedButton.icon(
-                    onPressed: () => _uploadFile(item),
-                    icon: const Icon(
-                      Icons.cloud_upload,
-                      size: 16,
-                      color: Colors.black,
-                    ),
-                    label: Text(
-                      'Upload',
-                      style: GoogleFonts.ubuntu(
-                        color: Colors.black,
-                        fontSize: 12,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 144, 202, 238),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                    ),
-                  ),
-                if (item.isUploading)
-                  const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                if (item.isUploaded)
-                  const Chip(
-                    label: Text('Uploaded', style: TextStyle(fontSize: 12)),
-                    avatar: Icon(
-                      Icons.check_circle,
-                      color: Colors.green,
-                      size: 16,
-                    ),
-                    backgroundColor: Colors.white,
-                    side: BorderSide(color: Colors.green),
-                  ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
+  IconData _getFileIcon(String extension) {
+    switch (extension.toLowerCase()) {
+      case 'pdf':
+        return Icons.picture_as_pdf;
+      case 'doc':
+      case 'docx':
+        return Icons.description;
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+        return Icons.image;
+      case 'txt':
+        return Icons.text_snippet;
+      default:
+        return Icons.insert_drive_file;
+    }
   }
 }
 
 class FileItem {
-  final File file;
+  final PlatformFile file;
   String? uploadedUrl;
   String? publicId;
   bool isUploading = false;

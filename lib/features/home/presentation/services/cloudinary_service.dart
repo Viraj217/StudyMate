@@ -1,18 +1,20 @@
 // uploading to cloudinary
-import 'dart:io';
-
+import 'dart:typed_data';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 Future<Map<String, dynamic>?> uploadToCloudinary(
-  File file, {
+  Uint8List fileBytes,
+  String filename, {
   String resourceType = 'auto',
 }) async {
   String cloudName = dotenv.env['CLOUDINARY_CLOUD_NAME'] ?? '';
   if (cloudName.isEmpty) {
+    // On web, dotenv might not be loaded, so we might need a fallback or ensure it's loaded.
+    // But for now, we assume it's handled in main.dart or we fail gracefully.
     print("Cloudinary Cloud Name not found in .env");
-    return null;
+    // return null; // Let's try to proceed or fail.
   }
 
   var uri = Uri.parse(
@@ -20,11 +22,10 @@ Future<Map<String, dynamic>?> uploadToCloudinary(
   );
   var request = http.MultipartRequest("POST", uri);
 
-  var fileBytes = await file.readAsBytes();
   var multipartFile = http.MultipartFile.fromBytes(
     'file',
     fileBytes,
-    filename: file.path.split("/").last,
+    filename: filename,
   );
 
   request.files.add(multipartFile);

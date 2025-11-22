@@ -31,10 +31,10 @@
               "client_type": 3
             },
             {
-              "client_id": "971678292113-v6pn124p5umcrukv0jc1883a2rufm4j6.apps.googleusercontent.com",
+              "client_id": "971678292113-0jrs4l6slqdrpb5n34ls8707kip6uqmn.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.viraj.studymate"
+                "bundle_id": "com.example.studymate"
               }
             }
           ]
@@ -75,10 +75,10 @@
               "client_type": 3
             },
             {
-              "client_id": "971678292113-v6pn124p5umcrukv0jc1883a2rufm4j6.apps.googleusercontent.com",
+              "client_id": "971678292113-0jrs4l6slqdrpb5n34ls8707kip6uqmn.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.viraj.studymate"
+                "bundle_id": "com.example.studymate"
               }
             }
           ]

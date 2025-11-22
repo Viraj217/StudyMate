@@ -15,6 +15,7 @@ import 'features/auth/presentation/cubits/todo_cubit.dart';
 import 'features/home/presentation/pages/main_screen_page.dart';
 import 'features/home/presentation/pages/splash_page.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter/foundation.dart';
 
 void main() async {
   // Required for async binding
@@ -23,16 +24,31 @@ void main() async {
   // Firebase init
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  FirebaseFirestore.instance.settings = const Settings(
-    persistenceEnabled: true,
-    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
-  );
+  // Configure Firestore settings based on platform
+  if (!kIsWeb) {
+    // Only enable persistence on mobile/desktop platforms
+    FirebaseFirestore.instance.settings = const Settings(
+      persistenceEnabled: true,
+      cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+    );
+  } else {
+    // Web-specific settings (persistence is enabled by default on web)
+    FirebaseFirestore.instance.settings = const Settings(
+      persistenceEnabled: true, // Already enabled by default on web
+    );
+  }
 
-  // Load .env file
-  try {
-    await dotenv.load(fileName: ".env");
-  } catch (e) {
-    print("Error loading .env: $e");
+  // Load .env file (conditional for web)
+  if (!kIsWeb) {
+    try {
+      await dotenv.load(fileName: ".env");
+    } catch (e) {
+      print("Error loading .env: $e");
+    }
+  } else {
+    // For web, you might want to use environment variables differently
+    // or load them from a web-specific configuration
+    print("Running on web - .env loading skipped");
   }
 
   // Create repos here

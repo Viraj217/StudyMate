@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -74,30 +75,55 @@ class _NotesPageState extends State<NotesPage> {
                       letterSpacing: -0.5,
                     ),
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey[300]!),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: IconButton(
-                      onPressed: () {
-                        final notesCubit = context.read<NotesCubit>();
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => BlocProvider.value(
-                              value: notesCubit,
-                              child: const CreateNotePage(),
+                  Row(
+                    children: [
+                      if (kIsWeb)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey[300]!),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: IconButton(
+                              onPressed: () {
+                                context.read<NotesCubit>().loadNotes();
+                              },
+                              icon: const Icon(
+                                Icons.refresh,
+                                size: 24,
+                                color: Colors.black,
+                              ),
+                              tooltip: 'Refresh Notes',
                             ),
                           ),
-                        );
-                      },
-                      icon: const Icon(
-                        Icons.add,
-                        size: 24,
-                        color: Colors.black,
+                        ),
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey[300]!),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: IconButton(
+                          onPressed: () {
+                            final notesCubit = context.read<NotesCubit>();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => BlocProvider.value(
+                                  value: notesCubit,
+                                  child: const CreateNotePage(),
+                                ),
+                              ),
+                            );
+                          },
+                          icon: const Icon(
+                            Icons.add,
+                            size: 24,
+                            color: Colors.black,
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ],
               ),

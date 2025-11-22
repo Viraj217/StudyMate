@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBDBMsJXFjU0h0kmzdRwBW0pYzx_JnHq_s',
-    appId: '1:971678292113:android:eea4588268fb5b08d68730',
+    appId: '1:971678292113:android:4ea9532496149437d68730',
     messagingSenderId: '971678292113',
     projectId: 'studymate-9c128',
     storageBucket: 'studymate-9c128.firebasestorage.app',
@@ -59,20 +59,24 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyAfhtEgM9UbcjR3E2IKE1I8uewQlq_AKSg',
-    appId: '1:971678292113:ios:ee8b3d62d9046908d68730',
+    appId: '1:971678292113:ios:2b32c3731780916cd68730',
     messagingSenderId: '971678292113',
     projectId: 'studymate-9c128',
     storageBucket: 'studymate-9c128.firebasestorage.app',
-    iosBundleId: 'com.viraj.studymate',
+    androidClientId: '971678292113-79abo9isov3rt3adbnuj6ei31difui95.apps.googleusercontent.com',
+    iosClientId: '971678292113-0jrs4l6slqdrpb5n34ls8707kip6uqmn.apps.googleusercontent.com',
+    iosBundleId: 'com.example.studymate',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyAfhtEgM9UbcjR3E2IKE1I8uewQlq_AKSg',
-    appId: '1:971678292113:ios:ee8b3d62d9046908d68730',
+    appId: '1:971678292113:ios:2b32c3731780916cd68730',
     messagingSenderId: '971678292113',
     projectId: 'studymate-9c128',
     storageBucket: 'studymate-9c128.firebasestorage.app',
-    iosBundleId: 'com.viraj.studymate',
+    androidClientId: '971678292113-79abo9isov3rt3adbnuj6ei31difui95.apps.googleusercontent.com',
+    iosClientId: '971678292113-0jrs4l6slqdrpb5n34ls8707kip6uqmn.apps.googleusercontent.com',
+    iosBundleId: 'com.example.studymate',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

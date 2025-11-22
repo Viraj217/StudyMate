@@ -1,35 +1,13 @@
 import 'dart:async';
 import 'dart:convert'; // For JSON decoding
 import 'dart:ui'; // For FontFeature
+import 'package:flutter/foundation.dart'; // For kIsWeb
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http; // Import HTTP
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
-
-// --- 1. THE PROPRIETARY MODEL ---
-class Quote {
-  final String content;
-  final String author;
-
-  Quote({required this.content, required this.author});
-
-  // Factory constructor to parse JSON
-  factory Quote.fromJson(Map<String, dynamic> json) {
-    return Quote(
-      content: json['content'] ?? 'Focus is the key to success.',
-      author: json['author'] ?? 'Unknown',
-    );
-  }
-
-  // Factory for fallback/error cases
-  factory Quote.fallback() {
-    return Quote(
-      content: 'Success is the sum of small efforts repeated day in and day out.',
-      author: 'Robert Collier',
-    );
-  }
-}
+import 'package:studymate/features/auth/domain/models/quote.dart';
 
 // --- ENUMS ---
 enum SessionState { idle, focusing, warning }
@@ -56,8 +34,10 @@ class _FlipTimerPageState extends State<FlipTimerPage> {
   @override
   void initState() {
     super.initState();
-    WakelockPlus.enable();
-    _startSensorListener();
+    if (!kIsWeb) {
+      WakelockPlus.enable();
+      _startSensorListener();
+    }
   }
 
   @override
@@ -65,12 +45,17 @@ class _FlipTimerPageState extends State<FlipTimerPage> {
     _mainTimer?.cancel();
     _graceTimer?.cancel();
     _accelerometerSubscription?.cancel();
-    WakelockPlus.disable();
+    if (!kIsWeb) {
+      WakelockPlus.disable();
+    }
     super.dispose();
   }
 
   // --- SENSOR LOGIC ---
   void _startSensorListener() {
+    // On web, we don't use sensors.
+    if (kIsWeb) return;
+
     _accelerometerSubscription = accelerometerEvents.listen((event) {
       // Threshold: -7.5 ensures phone is mostly flat face down
       bool isFaceDown = event.z < -7.5;
@@ -110,6 +95,33 @@ class _FlipTimerPageState extends State<FlipTimerPage> {
       _graceSeconds = 10;
     });
     _startGraceTimer();
+  }
+
+  // --- WEB MANUAL CONTROLS ---
+  void _toggleWebTimer() {
+    if (_currentState == SessionState.idle) {
+      // Start focusing
+      setState(() {
+        _currentState = SessionState.focusing;
+      });
+      _startMainTimer();
+    } else if (_currentState == SessionState.focusing) {
+      // Pause/Stop (simulate face up)
+      _mainTimer?.cancel();
+      setState(() {
+        _currentState = SessionState.warning;
+        _graceSeconds = 10;
+      });
+      _startGraceTimer();
+    } else if (_currentState == SessionState.warning) {
+      // Resume (simulate face down)
+      _graceTimer?.cancel();
+      setState(() {
+        _graceSeconds = 10;
+        _currentState = SessionState.focusing;
+      });
+      _startMainTimer();
+    }
   }
 
   // --- TIMER LOGIC ---
@@ -390,16 +402,41 @@ class _FlipTimerPageState extends State<FlipTimerPage> {
                   const Spacer(flex: 1),
 
                   // Helper Text
-                  Text(
-                    isDark
-                        ? "Keep phone face down"
-                        : "Flip phone face down to start",
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.ubuntu(
-                      fontSize: 16,
-                      color: isDark ? Colors.white54 : Colors.grey[500],
+                  if (kIsWeb)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 20),
+                      child: ElevatedButton.icon(
+                        onPressed: _toggleWebTimer,
+                        icon: Icon(
+                          _currentState == SessionState.focusing
+                              ? Icons.pause
+                              : Icons.play_arrow,
+                        ),
+                        label: Text(
+                          _currentState == SessionState.focusing
+                              ? "Pause Focus"
+                              : "Start Focus",
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 30,
+                            vertical: 15,
+                          ),
+                          textStyle: const TextStyle(fontSize: 18),
+                        ),
+                      ),
+                    )
+                  else
+                    Text(
+                      isDark
+                          ? "Keep phone face down"
+                          : "Flip phone face down to start",
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.ubuntu(
+                        fontSize: 16,
+                        color: isDark ? Colors.white54 : Colors.grey[500],
+                      ),
                     ),
-                  ),
 
                   const Spacer(flex: 2),
 
@@ -444,7 +481,9 @@ class _FlipTimerPageState extends State<FlipTimerPage> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    "Put the phone back down",
+                    kIsWeb
+                        ? "Resume focus to continue"
+                        : "Put the phone back down",
                     style: GoogleFonts.ubuntu(
                       color: Colors.white70,
                       fontSize: 18,
@@ -466,6 +505,28 @@ class _FlipTimerPageState extends State<FlipTimerPage> {
                       ),
                     ),
                   ),
+                  if (kIsWeb)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 40),
+                      child: ElevatedButton(
+                        onPressed: _toggleWebTimer,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.red,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 30,
+                            vertical: 15,
+                          ),
+                        ),
+                        child: const Text(
+                          "Resume Focus",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
