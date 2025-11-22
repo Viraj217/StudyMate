@@ -7,13 +7,13 @@ class FirebaseTodoRepo implements TodoRepository {
   final CollectionReference<Todo> _todosRef;
 
   FirebaseTodoRepo(this.uid)
-      : _todosRef = FirebaseFirestore.instance
-            .collection('todos')
-            .withConverter<Todo>(
-              fromFirestore: (snap, _) =>
-                  Todo.fromJson(snap.data() as Map<String, dynamic>, snap.id),
-              toFirestore: (todo, _) => todo.toJson(),
-            );
+    : _todosRef = FirebaseFirestore.instance
+          .collection('todos')
+          .withConverter<Todo>(
+            fromFirestore: (snap, _) =>
+                Todo.fromJson(snap.data() as Map<String, dynamic>, snap.id),
+            toFirestore: (todo, _) => todo.toJson(),
+          );
 
   @override
   Stream<List<Todo>> getTodos() {
@@ -27,12 +27,43 @@ class FirebaseTodoRepo implements TodoRepository {
   }
 
   @override
-  Future<void> addTodo(String title) async {
+  Stream<List<Todo>> getTodosByHashtag(String hashtag) {
+    final query = _todosRef
+        .where('uid', isEqualTo: uid)
+        .where('hashtags', arrayContains: hashtag)
+        .orderBy('createdAt', descending: true);
+
+    return query.snapshots().map(
+      (snap) => snap.docs.map((d) => d.data()).toList(),
+    );
+  }
+
+  @override
+  Stream<List<Todo>> searchTodos(String query) {
+    final q = _todosRef
+        .where('uid', isEqualTo: uid)
+        .orderBy('createdAt', descending: true);
+
+    return q.snapshots().map((snap) {
+      return snap.docs
+          .map((d) => d.data())
+          .where(
+            (todo) => todo.title.toLowerCase().contains(query.toLowerCase()),
+          )
+          .toList();
+    });
+  }
+
+  @override
+  Future<void> addTodo(Todo todo) async {
     await FirebaseFirestore.instance.collection('todos').add({
-      'title': title,
-      'isDone': false,
-      'createdAt': DateTime.now(),
+      'title': todo.title,
+      'isDone': todo.isDone,
+      'createdAt': todo.createdAt,
       'uid': uid,
+      'priority': todo.priority,
+      'deadline': todo.deadline,
+      'hashtags': todo.hashtags,
     });
   }
 

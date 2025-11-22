@@ -1,276 +1,3 @@
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:flutter/material.dart';
-// import 'package:google_fonts/google_fonts.dart';
-// import 'package:intl/intl.dart';
-// import 'package:studymate/features/auth/domain/models/note.dart';
-// import 'package:studymate/features/home/presentation/pages/create_note_page.dart';
-// // import 'package:firebase_auth/firebase_auth.dart';
-// // import 'package:flutter/material.dart';
-// // import 'package:google_fonts/google_fonts.dart';
-// // import 'package:studymate/features/auth/domain/models/todo.dart';
-// import 'package:studymate/features/auth/domain/services/database_service.dart';
-// // import 'package:intl/intl.dart';
-// // import 'package:cloud_firestore/cloud_firestore.dart';
-
-// class NotesPage extends StatefulWidget {
-//   const NotesPage({super.key});
-
-//   @override
-//   _NotesPageState createState() => _NotesPageState();
-// }
-
-// class _NotesPageState extends State<NotesPage> {
-//   final databaseService _databaseService = databaseService();
-//   String selectedCategory = 'All';
-//   List<String> categories = ['All', 'Work', 'Personal', 'Fitness'];
-
-//   @override
-//   Widget build(BuildContext context) {
-//     User? user = FirebaseAuth.instance.currentUser;
-//     String name = user?.displayName ?? "Guest User";
-
-//     return Scaffold(
-//       backgroundColor: Colors.white,
-//       body: SafeArea(
-//         child: Padding(
-//           padding: const EdgeInsets.symmetric(horizontal: 20.0),
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               // Header Section
-//               SizedBox(height: 30),
-//               Row(
-//                 children: [
-//                   CircleAvatar(
-//                     radius: 20,
-//                     backgroundColor: Colors.grey[300],
-//                     child: Icon(Icons.person, color: Colors.grey[600]),
-//                   ),
-//                   SizedBox(width: 12),
-//                   Expanded(
-//                     child: Text(
-//                       'Welcome back $name',
-//                       style: TextStyle(
-//                         fontSize: 16,
-//                         color: Colors.grey[600],
-//                         fontWeight: FontWeight.w400,
-//                       ),
-//                     ),
-//                   ),
-//                   IconButton(
-//                     onPressed: () {},
-//                     icon: Icon(Icons.search, size: 24, color: Colors.black),
-//                   ),
-//                   IconButton(
-//                     onPressed: () {},
-//                     icon: Icon(
-//                       Icons.notifications_none,
-//                       size: 24,
-//                       color: Colors.black,
-//                     ),
-//                   ),
-//                 ],
-//               ),
-
-//               SizedBox(height: 20),
-
-//               // Title and Add Button
-//               Row(
-//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                 children: [
-//                   Text(
-//                     'Your Notes',
-//                     style: GoogleFonts.ubuntu(
-//                       fontSize: 36,
-//                       fontWeight: FontWeight.w600,
-//                       letterSpacing: -0.5,
-//                     ),
-//                   ),
-//                   Container(
-//                     decoration: BoxDecoration(
-//                       border: Border.all(color: Colors.grey[300]!),
-//                       borderRadius: BorderRadius.circular(12),
-//                     ),
-//                     child: IconButton(
-//                       onPressed: () {
-//                         // Navigate to add note page
-//                         Navigator.push(
-//                           context,
-//                           MaterialPageRoute(
-//                             builder: (context) => CreateNotePage(),
-//                           ),
-//                         );
-//                       },
-//                       icon: Icon(Icons.add, size: 24, color: Colors.black),
-//                     ),
-//                   ),
-//                 ],
-//               ),
-
-//               SizedBox(height: 30),
-
-//               // Dropdown and View Toggle
-//               Row(
-//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                 children: [
-//                   Container(
-//                     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-//                     decoration: BoxDecoration(
-//                       color: Colors.grey[100],
-//                       borderRadius: BorderRadius.circular(8),
-//                     ),
-//                     child: Row(
-//                       mainAxisSize: MainAxisSize.max,
-//                       children: [
-//                         DropdownButton<String>(
-//                           value: selectedCategory,
-//                           icon: Icon(
-//                             Icons.keyboard_arrow_down,
-//                             color: Colors.black,
-//                           ),
-//                           underline: SizedBox(),
-//                           items: categories.map((String category) {
-//                             return DropdownMenuItem<String>(
-//                               value: category,
-//                               child: Center(
-//                                 child: Text(
-//                                   category,
-//                                   style: TextStyle(
-//                                     fontSize: 16,
-//                                     fontWeight: FontWeight.w500,
-//                                     color: Colors.black,
-//                                   ),
-//                                 ),
-//                               ),
-//                             );
-//                           }).toList(),
-//                           onChanged: (String? newValue) {
-//                             setState(() {
-//                               selectedCategory = newValue!;
-//                             });
-//                           },
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                   Row(
-//                     children: [
-//                       Icon(Icons.grid_view, color: Colors.black, size: 20),
-//                       SizedBox(width: 12),
-//                       Icon(Icons.menu, color: Colors.grey[400], size: 20),
-//                     ],
-//                   ),
-//                 ],
-//               ),
-
-//               SizedBox(height: 20),
-
-//               // Filter Tags
-//               SingleChildScrollView(
-//                 scrollDirection: Axis.horizontal,
-//                 child: Row(
-//                   children: categories.map((category) {
-//                     bool isSelected = category == selectedCategory;
-//                     return Container(
-//                       margin: EdgeInsets.only(right: 12),
-//                       child: FilterChip(
-//                         label: Text(
-//                           '#$category',
-//                           style: TextStyle(
-//                             color: isSelected ? Colors.black : Colors.grey[700],
-//                             fontWeight: FontWeight.w500,
-//                           ),
-//                         ),
-//                         selected: isSelected,
-//                         onSelected: (bool selected) {
-//                           setState(() {
-//                             selectedCategory = category;
-//                           });
-//                         },
-//                         backgroundColor: Colors.transparent,
-//                         selectedColor: Color.fromARGB(255, 144, 202, 238),
-//                         side: BorderSide(
-//                           color: isSelected
-//                               ? Colors.transparent
-//                               : Colors.grey[400]!,
-//                         ),
-//                         shape: RoundedRectangleBorder(
-//                           borderRadius: BorderRadius.circular(20),
-//                         ),
-//                         showCheckmark: false,
-//                       ),
-//                     );
-//                   }).toList(),
-//                 ),
-//               ),
-
-//               SizedBox(height: 30),
-
-//               // Notes content area (placeholder)
-//               Expanded(
-//                 child: Container(
-//                   // Add your notes list or grid view here
-//                   child: _notesListView(),
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _notesListView() {
-//     return Container(
-//       child: StreamBuilder(
-//         stream: _databaseService.getNote(),
-//         builder: (context, snapshot) {
-//           List notes = snapshot.data?.docs ?? [];
-//           if (notes.isEmpty) {
-//             return const Center(child: Text("Your notes will appear here"));
-//           }
-//           return ListView.builder(
-//             itemCount: notes.length,
-//             itemBuilder: (context, index) {
-//               Note note = notes[index].data();
-//               String noteID = notes[index].id;
-//               return Padding(
-//                 padding: const EdgeInsets.symmetric(
-//                   vertical: 10,
-//                   horizontal: 10,
-//                 ),
-//                 child: Container(
-//                   child: ListTile(
-//                     title: Text(note.title),
-
-//                     subtitle: Text(
-//                       DateFormat(
-//                         "dd-MM-yyyy h:mm a",
-//                       ).format(note.createdOn.toDate()),
-//                     ),
-//                     trailing: IconButton(
-//                       onPressed: () {
-//                         Note updatedTodo = note.copywith(
-//                           starred: !note.starred,
-//                         );
-//                         _databaseService.updateNote(noteID, updatedTodo);
-//                       },
-//                       icon: Icon(
-//                         note.starred ? Icons.star : Icons.star_border,
-//                         color: note.starred ? Colors.amber : Colors.grey,
-//                       ),
-//                     ),
-//                   ),
-//                 ),
-//               );
-//             },
-//           );
-//         },
-//       ),
-//     );
-//   }
-// }
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -291,6 +18,8 @@ class NotesPage extends StatefulWidget {
 class _NotesPageState extends State<NotesPage> {
   String selectedFilter = 'All';
   final TextEditingController searchController = TextEditingController();
+  bool _isSearching = false;
+  Set<String> _allHashtags = {};
 
   @override
   void initState() {
@@ -329,40 +58,7 @@ class _NotesPageState extends State<NotesPage> {
             children: [
               // Header Section
               const SizedBox(height: 30),
-              Row(
-                children: [
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundColor: Colors.grey[300],
-                    child: Icon(Icons.person, color: Colors.grey[600]),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'Welcome back $name',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[600],
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      _showSearchDialog(context);
-                    },
-                    icon: const Icon(Icons.search, size: 24, color: Colors.black),
-                  ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.notifications_none,
-                      size: 24,
-                      color: Colors.black,
-                    ),
-                  ),
-                ],
-              ),
+              _isSearching ? _buildSearchBar() : _buildHeader(name),
 
               const SizedBox(height: 20),
 
@@ -385,14 +81,22 @@ class _NotesPageState extends State<NotesPage> {
                     ),
                     child: IconButton(
                       onPressed: () {
+                        final notesCubit = context.read<NotesCubit>();
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const CreateNotePage(),
+                            builder: (context) => BlocProvider.value(
+                              value: notesCubit,
+                              child: const CreateNotePage(),
+                            ),
                           ),
                         );
                       },
-                      icon: const Icon(Icons.add, size: 24, color: Colors.black),
+                      icon: const Icon(
+                        Icons.add,
+                        size: 24,
+                        color: Colors.black,
+                      ),
                     ),
                   ),
                 ],
@@ -405,7 +109,10 @@ class _NotesPageState extends State<NotesPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.grey[100],
                       borderRadius: BorderRadius.circular(8),
@@ -417,19 +124,24 @@ class _NotesPageState extends State<NotesPage> {
                         color: Colors.black,
                       ),
                       underline: const SizedBox(),
-                      items: ['All', 'Starred'].map((String filter) {
-                        return DropdownMenuItem<String>(
-                          value: filter,
-                          child: Text(
-                            filter,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black,
-                            ),
-                          ),
-                        );
-                      }).toList(),
+                      items:
+                          [
+                            'All',
+                            'Starred',
+                            ..._allHashtags.map((t) => '#$t'),
+                          ].map((String filter) {
+                            return DropdownMenuItem<String>(
+                              value: filter,
+                              child: Text(
+                                filter,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            );
+                          }).toList(),
                       onChanged: (String? newValue) {
                         if (newValue != null) {
                           _applyFilter(newValue);
@@ -450,22 +162,29 @@ class _NotesPageState extends State<NotesPage> {
               const SizedBox(height: 20),
 
               // Dynamic Hashtag Filters
-              BlocBuilder<NotesCubit, NotesState>(
+              // Dynamic Hashtag Filters
+              BlocConsumer<NotesCubit, NotesState>(
+                listener: (context, state) {
+                  if (state is NotesLoaded && selectedFilter == 'All') {
+                    setState(() {
+                      _allHashtags = {};
+                      for (var note in state.notes) {
+                        _allHashtags.addAll(note.hashtags);
+                      }
+                    });
+                  }
+                },
                 builder: (context, state) {
-                  if (state is NotesLoaded) {
-                    // Extract unique hashtags from all notes
-                    Set<String> allHashtags = {};
-                    for (var note in state.notes) {
-                      allHashtags.addAll(note.hashtags);
-                    }
-
+                  if (state is NotesLoaded || _allHashtags.isNotEmpty) {
                     return SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
                           _buildFilterChip('All'),
                           _buildFilterChip('Starred'),
-                          ...allHashtags.map((tag) => _buildFilterChip('#$tag')),
+                          ..._allHashtags.map(
+                            (tag) => _buildFilterChip('#$tag'),
+                          ),
                         ],
                       ),
                     );
@@ -477,9 +196,7 @@ class _NotesPageState extends State<NotesPage> {
               const SizedBox(height: 30),
 
               // Notes content area
-              Expanded(
-                child: _notesListView(),
-              ),
+              Expanded(child: _notesListView()),
             ],
           ),
         ),
@@ -508,9 +225,7 @@ class _NotesPageState extends State<NotesPage> {
         side: BorderSide(
           color: isSelected ? Colors.transparent : Colors.grey[400]!,
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         showCheckmark: false,
       ),
     );
@@ -523,9 +238,7 @@ class _NotesPageState extends State<NotesPage> {
           return const Center(child: CircularProgressIndicator());
         } else if (state is NotesLoaded) {
           if (state.notes.isEmpty) {
-            return const Center(
-              child: Text("Your notes will appear here"),
-            );
+            return const Center(child: Text("Your notes will appear here"));
           }
           return ListView.builder(
             itemCount: state.notes.length,
@@ -565,20 +278,23 @@ class _NotesPageState extends State<NotesPage> {
                           Wrap(
                             spacing: 6,
                             children: note.hashtags
-                                .map((tag) => Text(
-                                      '#$tag',
-                                      style: const TextStyle(
-                                        color: Color.fromARGB(255, 0, 122, 204),
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ))
+                                .map(
+                                  (tag) => Text(
+                                    '#$tag',
+                                    style: const TextStyle(
+                                      color: Color.fromARGB(255, 0, 122, 204),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                )
                                 .toList(),
                           ),
                         const SizedBox(height: 4),
                         Text(
-                          DateFormat("dd-MM-yyyy h:mm a")
-                              .format(note.createdOn.toDate()),
+                          DateFormat(
+                            "dd-MM-yyyy h:mm a",
+                          ).format(note.createdOn.toDate()),
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey[500],
@@ -589,9 +305,9 @@ class _NotesPageState extends State<NotesPage> {
                     trailing: IconButton(
                       onPressed: () {
                         context.read<NotesCubit>().updateNote(
-                              noteID,
-                              note.copywith(starred: !note.starred),
-                            );
+                          noteID,
+                          note.copywith(starred: !note.starred),
+                        );
                       },
                       icon: Icon(
                         note.starred ? Icons.star : Icons.star_border,
@@ -604,45 +320,100 @@ class _NotesPageState extends State<NotesPage> {
             },
           );
         } else if (state is NotesError) {
-          return Center(
-            child: Text('Error: ${state.message}'),
-          );
+          return Center(child: Text('Error: ${state.message}'));
         }
         return const Center(child: Text("Start by adding a note!"));
       },
     );
   }
 
-  void _showSearchDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Search Notes'),
-        content: TextField(
-          controller: searchController,
-          decoration: const InputDecoration(
-            hintText: 'Search by title or content...',
-            border: OutlineInputBorder(),
-          ),
-          onChanged: (value) {
-            context.read<NotesCubit>().searchNotes(value);
-          },
+  Widget _buildHeader(String name) {
+    return Row(
+      children: [
+        CircleAvatar(
+          radius: 20,
+          backgroundColor: Colors.grey[300],
+          child: Icon(Icons.person, color: Colors.grey[600]),
         ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              searchController.clear();
-              context.read<NotesCubit>().loadNotes();
-              Navigator.pop(dialogContext);
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            'Welcome back $name',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ),
+        IconButton(
+          onPressed: () {
+            setState(() {
+              _isSearching = true;
+            });
+          },
+          icon: const Icon(Icons.search, size: 24, color: Colors.black),
+        ),
+        IconButton(
+          onPressed: () {},
+          icon: const Icon(
+            Icons.notifications_none,
+            size: 24,
+            color: Colors.black,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: searchController,
+            autofocus: true,
+            decoration: InputDecoration(
+              hintText: 'Search notes...',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              filled: true,
+              fillColor: Colors.grey[100],
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
+              prefixIcon: const Icon(Icons.search, color: Colors.grey),
+              suffixIcon: searchController.text.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear, color: Colors.grey),
+                      onPressed: () {
+                        searchController.clear();
+                        context.read<NotesCubit>().loadNotes();
+                        setState(() {});
+                      },
+                    )
+                  : null,
+            ),
+            onChanged: (value) {
+              context.read<NotesCubit>().searchNotes(value);
+              setState(() {});
             },
-            child: const Text('Clear'),
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
+        ),
+        TextButton(
+          onPressed: () {
+            setState(() {
+              _isSearching = false;
+              searchController.clear();
+            });
+            context.read<NotesCubit>().loadNotes();
+          },
+          child: const Text('Cancel', style: TextStyle(color: Colors.black)),
+        ),
+      ],
     );
   }
 

@@ -73,7 +73,6 @@ void main() async {
                 child: MainScreenPage(),
               );
             }
-
             return SplashScreen();
           },
 

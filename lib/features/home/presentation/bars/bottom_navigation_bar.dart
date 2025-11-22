@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:line_icons/line_icons.dart';
-import 'package:studymate/features/home/presentation/pages/browse_page.dart';
+import 'package:studymate/features/home/presentation/pages/upload.dart';
 import 'package:studymate/features/home/presentation/pages/chatbot_page.dart';
 import '../pages/notes_page.dart';
 import '../pages/todo_page.dart';
@@ -20,7 +20,7 @@ class _MybottomnavbarState extends State<Mybottomnavbar> {
     TodoPage(),
     NotesPage(),
     ChatbotPage(),
-    BrowsePage(),
+    UploadPage(),
   ];
 
   final List<Map<String, dynamic>> _tabData = [
@@ -49,10 +49,9 @@ class _MybottomnavbarState extends State<Mybottomnavbar> {
           child: IndexedStack(index: _selectedIndex, children: _pages),
         ),
         Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-          ),
-          child: _buildBottomNavBar()),
+          decoration: BoxDecoration(color: Colors.white),
+          child: _buildBottomNavBar(),
+        ),
       ],
     );
   }

@@ -42,14 +42,16 @@ class NotesCubit extends Cubit<NotesState> {
   void loadNotesByHashtag(String hashtag) {
     emit(NotesLoading());
     _notesSubscription?.cancel();
-    _notesSubscription = _repository.getNotesByHashtag(hashtag).listen(
-      (notes) {
-        emit(NotesLoaded(notes));
-      },
-      onError: (error) {
-        emit(NotesError(error.toString()));
-      },
-    );
+    _notesSubscription = _repository
+        .getNotesByHashtag(hashtag)
+        .listen(
+          (notes) {
+            emit(NotesLoaded(notes));
+          },
+          onError: (error) {
+            emit(NotesError(error.toString()));
+          },
+        );
   }
 
   // Create a new note
@@ -89,17 +91,19 @@ class NotesCubit extends Cubit<NotesState> {
       loadNotes();
       return;
     }
-    
-    emit(NotesLoading());
+
+    // emit(NotesLoading()); // Removed to avoid flickering
     _notesSubscription?.cancel();
-    _notesSubscription = _repository.searchNotes(query).listen(
-      (notes) {
-        emit(NotesLoaded(notes));
-      },
-      onError: (error) {
-        emit(NotesError(error.toString()));
-      },
-    );
+    _notesSubscription = _repository
+        .searchNotes(query)
+        .listen(
+          (notes) {
+            emit(NotesLoaded(notes));
+          },
+          onError: (error) {
+            emit(NotesError(error.toString()));
+          },
+        );
   }
 
   @override

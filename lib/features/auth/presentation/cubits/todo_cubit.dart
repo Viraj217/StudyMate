@@ -16,15 +16,55 @@ class TodoCubit extends Cubit<TodoState> {
     emit(TodoLoading());
     _sub?.cancel();
 
-    _sub = repo.getTodos().listen((todos) {
-      emit(TodoLoaded(todos));
-    }, onError: (e) {
-      emit(TodoError(e.toString()));
-    });
+    _sub = repo.getTodos().listen(
+      (todos) {
+        emit(TodoLoaded(todos));
+      },
+      onError: (e) {
+        emit(TodoError(e.toString()));
+      },
+    );
   }
 
-  Future<void> addTodo(String title) async {
-    await repo.addTodo(title);
+  Future<void> addTodo(Todo todo) async {
+    await repo.addTodo(todo);
+  }
+
+  void loadTodosByHashtag(String hashtag) {
+    emit(TodoLoading());
+    _sub?.cancel();
+
+    _sub = repo
+        .getTodosByHashtag(hashtag)
+        .listen(
+          (todos) {
+            emit(TodoLoaded(todos));
+          },
+          onError: (e) {
+            emit(TodoError(e.toString()));
+          },
+        );
+  }
+
+  void searchTodos(String query) {
+    if (query.isEmpty) {
+      loadTodos();
+      return;
+    }
+
+    // emit(TodoLoading()); // Optional: avoid flickering if desired
+    _sub?.cancel();
+
+    _sub = repo
+        .searchTodos(query)
+        .listen(
+          (todos) {
+            emit(TodoLoaded(todos));
+          },
+          onError: (e) {
+            emit(TodoError(e.toString()));
+          },
+        );
   }
 
   Future<void> toggleDone(Todo todo) async {

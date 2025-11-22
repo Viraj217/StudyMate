@@ -25,6 +25,8 @@ dependencies:
   cloudinary_flutter: ^1.3.0
   cloudinary_url_gen: ^1.8.0
   image_picker: ^1.2.1
+  http: ^1.6.0
+  file_picker: ^10.3.7
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
