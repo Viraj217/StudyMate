@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:studymate/features/home/presentation/pages/upload.dart';
 import 'package:studymate/features/home/presentation/pages/chatbot_page.dart';
+import 'package:studymate/features/home/presentation/pages/flip_timer_page.dart';
 import '../pages/notes_page.dart';
 import '../pages/todo_page.dart';
 
@@ -20,6 +21,7 @@ class _MybottomnavbarState extends State<Mybottomnavbar> {
     TodoPage(),
     NotesPage(),
     ChatbotPage(),
+    FlipTimerPage(),
     UploadPage(),
   ];
 
@@ -27,6 +29,7 @@ class _MybottomnavbarState extends State<Mybottomnavbar> {
     {'icon': LineIcons.medicalNotes, 'label': 'To-Do'},
     {'icon': LineIcons.stickyNote, 'label': 'Notes'},
     {'icon': LineIcons.robot, 'label': 'Chat'},
+    {'icon': LineIcons.clock, 'label': 'Timer'},
     {'icon': LineIcons.bars, 'label': 'Browse'},
   ];
 

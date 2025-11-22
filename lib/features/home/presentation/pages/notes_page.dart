@@ -256,6 +256,18 @@ class _NotesPageState extends State<NotesPage> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: ListTile(
+                    onTap: () {
+                      final notesCubit = context.read<NotesCubit>();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BlocProvider.value(
+                            value: notesCubit,
+                            child: CreateNotePage(note: note),
+                          ),
+                        ),
+                      );
+                    },
                     title: Text(
                       note.title,
                       style: const TextStyle(
