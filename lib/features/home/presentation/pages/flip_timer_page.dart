@@ -1,11 +1,35 @@
 import 'dart:async';
 import 'dart:convert'; // For JSON decoding
-import 'dart:ui';
+import 'dart:ui'; // For FontFeature
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http; // Import HTTP
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+
+// --- 1. THE PROPRIETARY MODEL ---
+class Quote {
+  final String content;
+  final String author;
+
+  Quote({required this.content, required this.author});
+
+  // Factory constructor to parse JSON
+  factory Quote.fromJson(Map<String, dynamic> json) {
+    return Quote(
+      content: json['content'] ?? 'Focus is the key to success.',
+      author: json['author'] ?? 'Unknown',
+    );
+  }
+
+  // Factory for fallback/error cases
+  factory Quote.fallback() {
+    return Quote(
+      content: 'Success is the sum of small efforts repeated day in and day out.',
+      author: 'Robert Collier',
+    );
+  }
+}
 
 // --- ENUMS ---
 enum SessionState { idle, focusing, warning }
@@ -25,9 +49,9 @@ class _FlipTimerPageState extends State<FlipTimerPage> {
   int _graceSeconds = 10;
   SessionState _currentState = SessionState.idle;
   StreamSubscription? _accelerometerSubscription;
-  
-  // Quote Logic
-  Future<String>? _quoteFuture;
+
+  // --- UPDATED: FUTURE NOW USES THE MODEL ---
+  Future<Quote>? _quoteFuture;
 
   @override
   void initState() {
@@ -48,8 +72,8 @@ class _FlipTimerPageState extends State<FlipTimerPage> {
   // --- SENSOR LOGIC ---
   void _startSensorListener() {
     _accelerometerSubscription = accelerometerEvents.listen((event) {
-      // Threshold: -7.0 (approx) is face down
-      bool isFaceDown = event.z < -7.0;
+      // Threshold: -7.5 ensures phone is mostly flat face down
+      bool isFaceDown = event.z < -7.5;
 
       if (isFaceDown) {
         _handleFaceDown();
@@ -62,7 +86,6 @@ class _FlipTimerPageState extends State<FlipTimerPage> {
   void _handleFaceDown() {
     if (_currentState == SessionState.focusing) return;
 
-    // If user put phone back down during warning, RESUME
     if (_currentState == SessionState.warning) {
       _graceTimer?.cancel();
       setState(() {
@@ -70,9 +93,7 @@ class _FlipTimerPageState extends State<FlipTimerPage> {
         _currentState = SessionState.focusing;
       });
       _startMainTimer();
-    } 
-    // Start new session
-    else if (_currentState == SessionState.idle) {
+    } else if (_currentState == SessionState.idle) {
       setState(() {
         _currentState = SessionState.focusing;
       });
@@ -83,7 +104,6 @@ class _FlipTimerPageState extends State<FlipTimerPage> {
   void _handleFaceUp() {
     if (_currentState != SessionState.focusing) return;
 
-    // PAUSE main timer, START countdown
     _mainTimer?.cancel();
     setState(() {
       _currentState = SessionState.warning;
@@ -110,21 +130,24 @@ class _FlipTimerPageState extends State<FlipTimerPage> {
     });
   }
 
-  // --- API LOGIC ---
-  // 1. This function calls the API
-  Future<String> _getRandomQuote() async {
+  // --- API LOGIC WITH MODEL ---
+  Future<Quote> _getRandomQuote() async {
     try {
-      // Using quotable.io - a free, open source API
-      final response = await http.get(Uri.parse('https://api.quotable.io/random?tags=inspirational'));
-      
+      final response = await http.get(
+        Uri.parse('https://api.quotable.io/random'),
+      );
+
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return '"${data['content']}"\n\n- ${data['author']}';
+        // 1. Decode JSON
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        // 2. Return the Model using factory
+        return Quote.fromJson(data);
       } else {
-        return '"Focus is the key to success."'; // Fallback if API fails
+        return Quote.fallback();
       }
     } catch (e) {
-      return '"Stay focused, stay sharp."'; // Fallback if Offline
+      debugPrint('Error fetching quote: $e');
+      return Quote.fallback();
     }
   }
 
@@ -133,7 +156,7 @@ class _FlipTimerPageState extends State<FlipTimerPage> {
     _graceTimer?.cancel();
     _mainTimer?.cancel();
 
-    // 2. Trigger the API call immediately when session ends
+    // Trigger the API call
     _quoteFuture = _getRandomQuote();
 
     _showSummaryDialog();
@@ -164,9 +187,16 @@ class _FlipTimerPageState extends State<FlipTimerPage> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Column(
           children: [
-             const Icon(Icons.check_circle_outline, size: 50, color: Colors.green),
-             const SizedBox(height: 10),
-             Text("Session Complete", style: GoogleFonts.ubuntu(fontWeight: FontWeight.bold)),
+            const Icon(
+              Icons.check_circle_outline,
+              size: 50,
+              color: Colors.green,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              "Session Complete",
+              style: GoogleFonts.ubuntu(fontWeight: FontWeight.bold),
+            ),
           ],
         ),
         content: Column(
@@ -174,30 +204,62 @@ class _FlipTimerPageState extends State<FlipTimerPage> {
           children: [
             Text(
               "$minutes min $seconds sec",
-              style: GoogleFonts.ubuntu(fontSize: 28, fontWeight: FontWeight.bold),
+              style: GoogleFonts.ubuntu(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 20),
             const Divider(),
             const SizedBox(height: 10),
-            // 3. Use FutureBuilder to show quote when it arrives
-            FutureBuilder<String>(
+
+            // --- UPDATED FUTURE BUILDER FOR QUOTE MODEL ---
+            FutureBuilder<Quote>(
               future: _quoteFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const SizedBox(
-                    height: 50, 
-                    child: Center(child: CircularProgressIndicator(strokeWidth: 2))
+                    height: 60,
+                    child: Center(
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
                   );
                 } else if (snapshot.hasError) {
                   return const Text("Great job focusing!");
                 }
-                return Text(
-                  snapshot.data ?? "Well done!",
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.ubuntu(
-                    fontSize: 14, 
-                    fontStyle: FontStyle.italic,
-                    color: Colors.grey[700]
+
+                // Access data directly from the Model
+                final quote = snapshot.data?.content ?? "Well done!";
+                final author = snapshot.data?.author ?? "Unknown";
+
+                return AnimatedOpacity(
+                  duration: const Duration(milliseconds: 500),
+                  opacity: 1.0,
+                  child: Column(
+                    children: [
+                      Text(
+                        '"$quote"',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.ubuntu(
+                          fontSize: 16,
+                          fontStyle: FontStyle.italic,
+                          color: Colors.grey[800],
+                          height: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          "- $author",
+                          style: GoogleFonts.ubuntu(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.blue[700],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 );
               },
@@ -211,7 +273,7 @@ class _FlipTimerPageState extends State<FlipTimerPage> {
               _manualReset();
             },
             child: const Text("Close"),
-          )
+          ),
         ],
       ),
     );
@@ -230,7 +292,6 @@ class _FlipTimerPageState extends State<FlipTimerPage> {
   // --- UI BUILD ---
   @override
   Widget build(BuildContext context) {
-    // Responsive Utils
     final size = MediaQuery.of(context).size;
     final isDark = _currentState == SessionState.focusing;
 
@@ -244,11 +305,13 @@ class _FlipTimerPageState extends State<FlipTimerPage> {
               padding: EdgeInsets.symmetric(horizontal: size.width * 0.08),
               child: Column(
                 children: [
-                  const Spacer(flex: 1), // Responsive spacing
-                  
+                  const Spacer(flex: 1),
                   // Status Pill
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       color: isDark ? Colors.white10 : Colors.grey[100],
                       borderRadius: BorderRadius.circular(30),
@@ -257,7 +320,9 @@ class _FlipTimerPageState extends State<FlipTimerPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          isDark ? Icons.nightlight_round : Icons.wb_sunny_rounded,
+                          isDark
+                              ? Icons.nightlight_round
+                              : Icons.wb_sunny_rounded,
                           color: isDark ? Colors.amber : Colors.orange,
                           size: 20,
                         ),
@@ -278,17 +343,27 @@ class _FlipTimerPageState extends State<FlipTimerPage> {
                   // Timer Circle
                   Container(
                     width: size.width * 0.8,
-                    height: size.width * 0.8, // Square container for circle
+                    height: size.width * 0.8,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: isDark ? Colors.white.withOpacity(0.05) : Colors.blue[50],
+                      color: isDark
+                          ? Colors.white.withOpacity(0.05)
+                          : Colors.blue[50],
                       border: Border.all(
-                        color: isDark ? Colors.blueAccent.withOpacity(0.5) : Colors.blue[100]!,
+                        color: isDark
+                            ? Colors.blueAccent.withOpacity(0.5)
+                            : Colors.blue[100]!,
                         width: 2,
                       ),
-                      boxShadow: isDark ? [
-                        BoxShadow(color: Colors.blueAccent.withOpacity(0.2), blurRadius: 30, spreadRadius: 5)
-                      ] : [],
+                      boxShadow: isDark
+                          ? [
+                              BoxShadow(
+                                color: Colors.blueAccent.withOpacity(0.2),
+                                blurRadius: 30,
+                                spreadRadius: 5,
+                              ),
+                            ]
+                          : [],
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -302,7 +377,7 @@ class _FlipTimerPageState extends State<FlipTimerPage> {
                         Text(
                           _formatTime(_focusSeconds),
                           style: GoogleFonts.ubuntu(
-                            fontSize: size.width * 0.18, // Responsive Font
+                            fontSize: size.width * 0.18,
                             fontWeight: FontWeight.bold,
                             color: isDark ? Colors.white : Colors.blue[900],
                             fontFeatures: [const FontFeature.tabularFigures()],
@@ -316,9 +391,9 @@ class _FlipTimerPageState extends State<FlipTimerPage> {
 
                   // Helper Text
                   Text(
-                    isDark 
-                      ? "Keep phone face down" 
-                      : "Flip phone face down to start",
+                    isDark
+                        ? "Keep phone face down"
+                        : "Flip phone face down to start",
                     textAlign: TextAlign.center,
                     style: GoogleFonts.ubuntu(
                       fontSize: 16,
@@ -328,17 +403,15 @@ class _FlipTimerPageState extends State<FlipTimerPage> {
 
                   const Spacer(flex: 2),
 
-                  // Reset Button (Only when idle and has time)
+                  // Reset Button
                   if (_currentState == SessionState.idle && _focusSeconds > 0)
                     TextButton.icon(
                       onPressed: _manualReset,
                       icon: const Icon(Icons.refresh),
                       label: const Text("Reset Counter"),
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.grey,
-                      ),
+                      style: TextButton.styleFrom(foregroundColor: Colors.grey),
                     ),
-                  
+
                   const SizedBox(height: 20),
                 ],
               ),
@@ -355,7 +428,11 @@ class _FlipTimerPageState extends State<FlipTimerPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.warning_rounded, color: Colors.white, size: 80),
+                  const Icon(
+                    Icons.warning_rounded,
+                    color: Colors.white,
+                    size: 80,
+                  ),
                   const SizedBox(height: 30),
                   Text(
                     "Don't give up!",
@@ -368,7 +445,10 @@ class _FlipTimerPageState extends State<FlipTimerPage> {
                   const SizedBox(height: 10),
                   Text(
                     "Put the phone back down",
-                    style: GoogleFonts.ubuntu(color: Colors.white70, fontSize: 18),
+                    style: GoogleFonts.ubuntu(
+                      color: Colors.white70,
+                      fontSize: 18,
+                    ),
                   ),
                   const SizedBox(height: 50),
                   Container(
